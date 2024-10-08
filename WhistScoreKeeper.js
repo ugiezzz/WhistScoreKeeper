@@ -1,5 +1,5 @@
-const { useState } = React;
-const { ArrowUp, ArrowDown, Minus, Plus, Trash2 } = lucideReact;
+import React, { useState } from 'react';
+import { ArrowUp, ArrowDown, Minus, Plus, Trash2 } from 'lucide-react';
 
 const WhistScoreKeeper = () => {
   const [players, setPlayers] = useState(['', '', '', '']);
@@ -59,12 +59,12 @@ const WhistScoreKeeper = () => {
 
   const submitBids = () => {
     const totalBids = Object.values(currentBids).reduce((sum, bid) => sum + bid, 0);
-    if (totalBids === 13) {
-      setError("The combined sum of bids cannot be 13. Please adjust the bids.");
+    if (totalBids !== 13) {
+      setError("The combined sum of bids must be 13. Please adjust the bids.");
       return;
     }
-    setRounds(prev => [...prev, { bids: {...currentBids}, tricks: {}, scores: {}, totalBids, leadBidder, leadSuit }]);
-    setCurrentTricks({...currentBids});
+    setRounds(prev => [...prev, { bids: { ...currentBids }, tricks: {}, scores: {}, totalBids, leadBidder, leadSuit }]);
+    setCurrentTricks({ ...currentBids });
     setPhase('trick');
     setError('');
   };
@@ -85,9 +85,9 @@ const WhistScoreKeeper = () => {
     setRounds(prevRounds => {
       const newRounds = [...prevRounds];
       const currentRound = newRounds[newRounds.length - 1];
-      currentRound.tricks = {...currentTricks};
+      currentRound.tricks = { ...currentTricks };
       const prevScores = newRounds.length > 1 ? newRounds[newRounds.length - 2].scores : {};
-      currentRound.scores = {...prevScores};
+      currentRound.scores = { ...prevScores };
 
       const anyPlayerMetBid = players.some(player => currentRound.bids[player] === currentTricks[player]);
 
@@ -159,9 +159,13 @@ const WhistScoreKeeper = () => {
           <div className="flex items-center justify-between">
             <span>Lead Bid:</span>
             <div className="flex items-center gap-2">
-              <button onClick={() => setLeadBid(Math.max(5, leadBid - 1))} className="p-2 bg-green-500 text-white rounded"><Minus size={16} /></button>
+              <button onClick={() => setLeadBid(Math.max(5, leadBid - 1))} className="p-2 bg-green-500 text-white rounded">
+                <Minus size={16} />
+              </button>
               <span className="px-4 py-2 bg-white border border-gray-300 rounded">{leadBid}</span>
-              <button onClick={() => setLeadBid(Math.min(13, leadBid + 1))} className="p-2 bg-green-500 text-white rounded"><Plus size={16} /></button>
+              <button onClick={() => setLeadBid(Math.min(13, leadBid + 1))} className="p-2 bg-green-500 text-white rounded">
+                <Plus size={16} />
+              </button>
             </div>
           </div>
           <div className="flex items-center">
@@ -190,22 +194,38 @@ const WhistScoreKeeper = () => {
         <h2 className="text-2xl font-bold text-center">Round {rounds.length}</h2>
         {phase === 'leadBidder' ? renderLeadBidderSelection() : (
           <div className="border-2 border-green-500 rounded-lg p-4">
-            <h3 className="text-xl font-semibold text-center mb-4">{phase === 'bid' ? `Bidding Phase` : `Trick Taking Phase`}</h3>
+            <h3 className="text-xl font-semibold text-center mb-4">{phase === 'bid' ? `Bids (${leadSuit})` : "Tricks"}</h3>
             <div className="grid grid-cols-2 gap-4">
               {players.map(player => (
-                <div key={player} className="p-2 border border-gray-300 rounded">
-                  <h4 className="font-semibold text-center mb-2">{player}</h4>
-                  <div className="flex justify-between items-center">
-                    <span>{phase === 'bid' ? 'Bid' : 'Tricks'}:</span>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => handleValueChange(player, -1, phase === 'bid')} className="p-2 bg-green-500 text-white rounded"><Minus size={16} /></button>
-                      <span className="px-4 py-2 bg-white border border-gray-300 rounded">{phase === 'bid' ? currentBids[player] : currentTricks[player]}</span>
-                      <button onClick={() => handleValueChange(player, 1, phase === 'bid')} className="p-2 bg-green-500 text-white rounded"><Plus size={16} /></button>
-                    </div>
+                <div key={player} className="flex items-center justify-between">
+                  <span>{player}</span>
+                  <div className="flex items-center gap-2">
+                    {phase === 'bid' ? (
+                      <>
+                        <button onClick={() => handleValueChange(player, -1, true)} className="p-2 bg-green-500 text-white rounded">
+                          <Minus size={16} />
+                        </button>
+                        <span className="px-4 py-2 bg-white border border-gray-300 rounded">{currentBids[player] || 0}</span>
+                        <button onClick={() => handleValueChange(player, 1, true)} className="p-2 bg-green-500 text-white rounded">
+                          <Plus size={16} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => handleValueChange(player, -1, false)} className="p-2 bg-green-500 text-white rounded">
+                          <Minus size={16} />
+                        </button>
+                        <span className="px-4 py-2 bg-white border border-gray-300 rounded">{currentTricks[player] || 0}</span>
+                        <button onClick={() => handleValueChange(player, 1, false)} className="p-2 bg-green-500 text-white rounded">
+                          <Plus size={16} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
+            {error && <div className="text-red-600 text-center mt-4">{error}</div>}
             {phase === 'bid' ? (
               <button onClick={submitBids} className="mt-4 p-2 bg-green-500 text-white rounded w-full">Submit Bids</button>
             ) : (
@@ -214,34 +234,37 @@ const WhistScoreKeeper = () => {
           </div>
         )}
       </div>
-      <div className="border-2 border-green-500 rounded-lg p-4">
-        <h3 className="text-xl font-semibold text-center mb-4">Previous Rounds</h3>
-        {rounds.length === 0 ? <p className="text-center">No rounds yet</p> : (
-          <ul className="list-disc pl-4">
+      <button onClick={deleteCurrentRound} className="mt-4 p-2 bg-red-500 text-white rounded w-full">Delete Current Round</button>
+      <div className="overflow-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr>
+              <th className="border border-gray-300">Round</th>
+              {players.map(player => (
+                <th key={player} className="border border-gray-300">{player}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
             {rounds.map((round, index) => (
-              <li key={index}>
-                <h4 className="font-semibold mb-2">Round {index + 1}</h4>
-                <ul>
-                  {players.map(player => (
-                    <li key={player} className="flex justify-between">
-                      <span>{player}</span>
-                      <span>Bids: {round.bids[player]}, Tricks: {round.tricks[player]}, Score: {round.scores[player]}</span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
+              <tr key={index}>
+                <td className="border border-gray-300">{index + 1}</td>
+                {players.map(player => (
+                  <td key={player} className="border border-gray-300">
+                    {round.scores[player] || 0}
+                  </td>
+                ))}
+              </tr>
             ))}
-          </ul>
-        )}
-        {rounds.length > 0 && <button onClick={deleteCurrentRound} className="mt-4 p-2 bg-red-500 text-white rounded w-full">Delete Current Round</button>}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto mt-8">
       {currentScreen === 'playerNames' ? renderPlayerNameScreen() : renderGamePlayScreen()}
-      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
     </div>
   );
 };
