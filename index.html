@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whist Score Keeper</title>
+    
     <!-- Load React and ReactDOM -->
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    
-    <!-- Load Babel (for JSX transpilation in the browser) -->
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,11 +18,14 @@
 <body>
     <div id="root"></div>
 
-    <!-- Import WhistScoreKeeper component (ES6 modules) -->
+    <!-- Import WhistScoreKeeper component -->
     <script type="module">
-        import WhistScoreKeeper from './WhistScoreKeeper.js'; // Ensure it's a JavaScript file, not TypeScript directly
+        import WhistScoreKeeper from './WhistScoreKeeper.js'; // Ensure you transpile the TypeScript file to JS first
 
-        ReactDOM.render(<WhistScoreKeeper />, document.getElementById('root'));
+        ReactDOM.render(
+          React.createElement(WhistScoreKeeper),
+          document.getElementById('root')
+        );
     </script>
 </body>
 </html>
