@@ -191,10 +191,10 @@ const WhistScoreKeeper = () => {
   const renderGamePlayScreen = () => (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold text-center">Round {rounds.length}</h2>
-        {phase === 'leadBidder' ? renderLeadBidderSelection() : (
-          <div className="border-2 border-green-500 rounded-lg p-4">
-            <h3 className="text-xl font-semibold text-center mb-4">{phase === 'bid' ? `Bids (${leadSuit})` : "Tricks"}</h3>
+        <h2 className="text-2xl font-bold text-center">{phase === 'bid' ? 'Place Your Bids' : 'Record Tricks'}</h2>
+        {phase === 'leadBidder' && renderLeadBidderSelection()}
+        {phase !== 'leadBidder' && (
+          <div>
             <div className="grid grid-cols-2 gap-4">
               {players.map(player => (
                 <div key={player} className="flex items-center justify-between">
